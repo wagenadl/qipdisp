@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+'''QIPDISP is a tiny little program that displays the computer's
+   current LAN IP address in a window. QIPDISP is primarily intended
+   to run on computers that do not have a keyboard or mouse attached,
+   as is common in systems used inside a visual neuroscience setup.
+
+   QIPDISP is smart enough not to display 127.0.0.1 when the computer
+   is attached to a LAN, but not smart enough to punch through a
+   router and determine the computer's WAN address.
+
+   QIPDISP accepts window manager command line argument, so you can
+   run it, for example, as
+
+       qipdisp --geometry -0+0
+
+   to place the window in the top-right corner of the screen.
+
+   The normal way to terminate QIPDISP is by way of the "kill" command
+   from an (ssh) terminal. (That is because QIPDISP will typically run
+   on systems without a keyboard or mouse.) However, mouse clicks
+   inside QIPDISP's window also terminate it.
+'''
+
+import socket
+from PyQt5.QtWidgets import QLabel, QApplication
+from PyQt5.QtGui import QFont, QColor, QPalette
+from PyQt5.QtCore import Qt
+import sys
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+def get_ip():
+    '''get_ip() returns our IP address as a string, or "127.0.0.1" if not
+    connected.'''
+    
+    # This clever bit of code from stackexchange    
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('10.255.255.255', 1)) # doesn't even have to be reachable
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+
+class IPLabel(QLabel):
+    def __init__(self):
+        super().__init__()
+        self.startTimer(1000)
+        self.setFont(QFont("sans", 15))
+        self.setWindowFlags(Qt.WindowFlags(Qt.CustomizeWindowHint))
+        self.setPalette(QPalette(QColor(255,255,255), QColor(0,0,0)))
+        self.setText("xxx.xxx.xxx.xxx")
+        self.txt = ""
+        
+    def mousePressEvent(self, evt):
+        QApplication.quit()
+        
+    def timerEvent(self, evt):
+        txt = get_ip()
+        if txt != self.txt:
+            self.setText(get_ip())
+
+            
+app = QApplication(sys.argv)
+label = IPLabel()
+label.show()
+app.exec()
