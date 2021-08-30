@@ -16,7 +16,9 @@ run it, for example, as
 
 to place the window in the top-right corner of the screen.
 
-The normal way to terminate QIPDISP is by way of the "kill" command
-from an (ssh) terminal. (That is because QIPDISP will typically run
-on systems without a keyboard or mouse.) However, mouse clicks
+Because QIPDISP will typically run
+on systems without a keyboard or mouse, the normal way to start QIPDISP is 
+as a "Startup Application" through
+your session manager, and the normal way to terminate QIPDISP is by way 
+of the "kill" command from an (ssh) terminal.  However, mouse clicks
 inside QIPDISP's window also terminate it.
